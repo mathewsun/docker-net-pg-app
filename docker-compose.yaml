@@ -1,0 +1,46 @@
+volumes:
+
+  pgdata:
+    driver: local
+    driver_opts:
+      type: 'none'
+      o: 'bind'
+      device: C:/Docker/volumes/postgres/data
+
+  pgadmindata:
+    driver: local
+    driver_opts:
+      type: 'none'
+      o: 'bind'
+      device: C:/Docker/volumes/pgadmin
+  
+services:
+  backend:
+    build:
+      context: .
+      dockerfile: WebApplication1/Dockerfile
+    ports:
+      - 5000:80
+
+  postgres:
+    image: postgres:latest
+    restart: always
+    environment:
+      - POSTGRES_PASSWORD=111
+      - POSTGRES_USER=developer
+      - PGDATA=/var/lib/postgresql/data
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    ports:
+      - 5432:5432
+    command: ["-c", "max_connections=200"]
+    
+  pgadmin:
+    image: dpage/pgadmin4:latest
+    environment:
+      PGADMIN_DEFAULT_EMAIL: "developer@d.dd"
+      PGADMIN_DEFAULT_PASSWORD: "111"
+    ports:
+      - 15080:80
+    volumes:
+      - pgadmindata:/var/lib/pgadmin/
